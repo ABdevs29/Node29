@@ -1,5 +1,8 @@
 import express from "express";
 import { MongoClient } from "mongodb";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 
@@ -47,7 +50,7 @@ const users = [
 //Connection to DB
 // const MONGO_URL = "mongodb://localhost";
 
-const MONGO_URL = "mongodb+srv://@cluster0.trmyw.mongodb.net"
+const MONGO_URL = process.env.MONGO_URL;
 
 async function createConnection() {
   const client = new MongoClient(MONGO_URL);
