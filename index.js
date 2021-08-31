@@ -1,6 +1,7 @@
 import express from "express";
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt";
 
 dotenv.config();
 
@@ -52,6 +53,13 @@ const users = [
 
 const MONGO_URL = process.env.MONGO_URL;
 const PORT = process.env.PORT;
+
+async function generatePassword(password) {
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+  return hashedPassword;
+
+}
 
 async function createConnection() {
   const client = new MongoClient(MONGO_URL);
@@ -110,6 +118,17 @@ app.get("/users/:id", async (request, response) => {
   response.send(result);
 });
 
+app.post("/user/signup", async (request, response) => {
+  const {name, password, avatar} = request.body;
+
+  const hashedPassword = await generatePassword(password);
+  const client = await createConnection();
+  const result = await client
+    .db("test")
+    .collection("users")
+    .insertOne({name: name, avatar: avatar, password: hashedPassword, createdAt: new Date().toISOString()});
+  response.send(result);
+});
 // app.get("/users/:id", (request, response) => {
 //   const { id } = request.params;
 //   const notFound = { msg: "No user found" };
